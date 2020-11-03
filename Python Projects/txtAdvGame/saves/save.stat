@@ -1,0 +1,4 @@
+Parlite
+{'<pocketmobs.PocketMob object at 0x0320E490>': {'Name': 'Magnemite', 'Type': ['Electric'], 'Next': [30, 'Magneton'], 'Base Stats': {'HP': 25, 'ATK': 35, 'DEF': 70, 'SP.ATK': 95, 'SP.DEF': 55, 'SPD': 45}, 'Moves': ['TM_01', None, None, None], 'Health Points': 26, 'Level': 2, 'Nature': None, 'Item': None}}
+{}
+{'Medicines': {'Potions': 10}, 'Battle Items': {}, 'Pocket Balls': {'PokeBalls': 7}, 'Key Items': {}, 'Discs': {'TM_01s': 2}}

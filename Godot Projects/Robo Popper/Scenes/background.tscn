@@ -1,0 +1,157 @@
+[gd_scene load_steps=14 format=1]
+
+[ext_resource path="res://Animated BG/space8.tex" type="Texture" id=1]
+[ext_resource path="res://Animated BG/space7.tex" type="Texture" id=2]
+[ext_resource path="res://Animated BG/space6.tex" type="Texture" id=3]
+[ext_resource path="res://Animated BG/space5.tex" type="Texture" id=4]
+[ext_resource path="res://Animated BG/space4.tex" type="Texture" id=5]
+[ext_resource path="res://Animated BG/space3.tex" type="Texture" id=6]
+[ext_resource path="res://Animated BG/space2.tex" type="Texture" id=7]
+[ext_resource path="res://Animated BG/space1.tex" type="Texture" id=8]
+[ext_resource path="res://Scripts/stars.gd" type="Script" id=9]
+
+[sub_resource type="GDScript" id=5]
+
+resource/name = "bg"
+script/source = "extends Node
+
+func _ready():
+	if global.hide_bg == false:
+		get_node(\"bg\").show()
+		get_node(\"bg1\").show()
+	else:
+		get_node(\"bg\").hide()
+		get_node(\"bg1\").hide()
+	pass
+"
+
+[sub_resource type="SpriteFrames" id=6]
+
+animations = [ {
+"frames": [ ExtResource( 1 ), ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ), ExtResource( 8 ) ],
+"loop": true,
+"name": "default",
+"speed": 7.5
+} ]
+
+[sub_resource type="Animation" id=7]
+
+length = 0.5
+loop = true
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("bg:transform/pos")
+tracks/0/interp = 1
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 0.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ), Vector2( 0, 360 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("bg1:transform/pos")
+tracks/1/interp = 1
+tracks/1/imported = false
+tracks/1/keys = {
+"times": FloatArray( 0, 0.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, -360 ), Vector2( 0, 0 ) ]
+}
+
+[sub_resource type="Animation" id=4]
+
+length = 0.5
+loop = true
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("bg:transform/pos")
+tracks/0/interp = 1
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 0.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ), Vector2( 640, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("bg1:transform/pos")
+tracks/1/interp = 1
+tracks/1/imported = false
+tracks/1/keys = {
+"times": FloatArray( 0, 0.5 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( -640, 0 ), Vector2( 0, 0 ) ]
+}
+
+[node name="background" type="Node"]
+
+script/script = SubResource( 5 )
+
+[node name="bg" type="AnimatedSprite" parent="."]
+
+transform/scale = Vector2( 0.82, 0.8 )
+z/z = -1
+frames = SubResource( 6 )
+animation = "default"
+frame = 7
+playing = true
+centered = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="bg1" type="AnimatedSprite" parent="."]
+
+transform/pos = Vector2( 0, -360 )
+transform/scale = Vector2( 0.82, 0.8 )
+z/z = -1
+frames = SubResource( 6 )
+animation = "default"
+frame = 3
+playing = true
+centered = false
+
+[node name="anim" type="AnimationPlayer" parent="."]
+
+playback/process_mode = 1
+playback/default_blend_time = 0.0
+root/root = NodePath("..")
+anims/scroll_down = SubResource( 7 )
+anims/scroll_right = SubResource( 4 )
+playback/active = true
+playback/speed = 0.05
+blend_times = [  ]
+autoplay = ""
+
+[node name="stars" type="Particles2D" parent="."]
+
+transform/pos = Vector2( 320, -30 )
+transform/scale = Vector2( 10, 0.948047 )
+config/amount = 64
+config/lifetime = 10.0
+config/process_mode = 1
+config/half_extents = Vector2( 32, 0 )
+config/local_space = false
+params/direction = 0.0
+params/spread = 0.0
+params/linear_velocity = 50.0
+params/spin_velocity = 0.0
+params/orbit_velocity = 0.0
+params/gravity_direction = 0.0
+params/gravity_strength = 0.0
+params/radial_accel = 0.0
+params/tangential_accel = 0.0
+params/damping = 0.0
+params/initial_angle = 0.0
+params/initial_size = 3.5
+params/final_size = 3.5
+params/hue_variation = 0.0
+params/anim_speed_scale = 1.0
+params/anim_initial_pos = 0.0
+randomness/linear_velocity = 1.0
+script/script = ExtResource( 9 )
+
+

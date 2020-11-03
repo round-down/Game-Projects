@@ -1,0 +1,1013 @@
+[gd_scene load_steps=22 format=1]
+
+[ext_resource path="res://sprites/logo_youtube.png" type="Texture" id=1]
+[ext_resource path="res://sprites/logo_twitter.png" type="Texture" id=2]
+[ext_resource path="res://sprites/logo_patreon.png" type="Texture" id=3]
+[ext_resource path="res://fonts/m5x7.ttf" type="DynamicFontData" id=4]
+[ext_resource path="res://sprites/rect.png" type="Texture" id=5]
+
+[sub_resource type="DynamicFont" id=1]
+
+font/size = 112
+font/use_mipmaps = false
+font/use_filter = false
+font/font = ExtResource( 4 )
+
+[sub_resource type="DynamicFont" id=2]
+
+font/size = 64
+font/use_mipmaps = false
+font/use_filter = false
+font/font = ExtResource( 4 )
+
+[sub_resource type="RectangleShape2D" id=3]
+
+custom_solver_bias = 0.0
+extents = Vector2( 8, 8 )
+
+[sub_resource type="GDScript" id=4]
+
+resource/name = "player"
+script/source = "# script: player
+
+extends KinematicBody2D
+
+var dir       = 0
+var prev_dir  = 0
+
+var velocity  = Vector2()
+var MAX_SPEED = 225.0
+var ACCELETATION_FACTOR = 0.15
+
+var jump_height  = 60.0
+var time_to_apex = 0.4
+var gravity      = (2*jump_height) / pow(time_to_apex, 2)
+var jump_speed   = -gravity * time_to_apex
+
+var is_grounded   = false
+var was_grounded  = false
+var just_grounded = false
+
+signal stopping
+signal turned_left
+signal turned_right
+
+func _ready():
+	set_fixed_process(true)
+	pass
+
+func _fixed_process(delta):
+	prev_dir = dir
+	dir      = 0
+	if Input.is_key_pressed(KEY_RIGHT): dir =  1
+	if Input.is_key_pressed(KEY_LEFT ): dir = -1
+	
+	if dir != prev_dir:
+		if dir ==  0: emit_signal(\"stopping\"    )
+		if dir ==  1: emit_signal(\"turned_right\")
+		if dir == -1: emit_signal(\"turned_left\" )
+	
+	velocity.x += ((dir * MAX_SPEED) - velocity.x) * ACCELETATION_FACTOR
+	velocity.y += gravity * delta
+	
+	if input.keyboard.is_key_pressed(\"space\") and is_grounded:
+		velocity.y = jump_speed
+		get_node(\"sprite\").state = get_node(\"sprite\").STATE_STRECHING
+	
+	var motion = Vector2()
+	motion = velocity * delta
+	motion = move(motion)
+	
+	_update_grounded()
+	
+	if is_colliding():
+		var n    = get_collision_normal()
+		motion   = n.slide(motion)
+		velocity = n.slide(velocity)
+		move(motion)
+	
+	if just_grounded:
+		get_node(\"sprite\").state = get_node(\"sprite\").STATE_SQUASHING
+		pass
+	pass
+
+func _update_grounded():
+	was_grounded  = is_grounded
+	is_grounded   = is_colliding()
+	just_grounded = is_grounded and not was_grounded
+	pass
+
+"
+
+[sub_resource type="CanvasItemShader" id=5]
+
+_code = {
+"fragment": "",
+"fragment_ofs": 0,
+"light": "",
+"light_ofs": 0,
+"vertex": "uniform float skew_h = 0;
+uniform float skew_v = 0;
+
+float h = skew_h;
+float v = skew_v;
+
+vec4 x = vec4(1,h,0,0);
+vec4 y = vec4(v,1,0,0);
+vec4 z = vec4(0,0,1,0);
+vec4 o = vec4(0,0,0,1);
+mat4 transform_matrix = mat4(x,y,z,o);
+mat4 skewed_vertex = transform_matrix * EXTRA_MATRIX;
+VERTEX = VERTEX * skewed_vertex;",
+"vertex_ofs": 0
+}
+
+[sub_resource type="CanvasItemMaterial" id=6]
+
+shader/shader = SubResource( 5 )
+shader/shading_mode = 0
+shader_param/skew_h = 0.0
+shader_param/skew_v = 0.0
+
+[sub_resource type="GDScript" id=7]
+
+resource/name = "player/sprite"
+script/source = "# script: player/sprite (built-in)
+
+extends Sprite
+
+var t_skew    = tweener.create()
+var t_offsetx = tweener.create()
+var t_offsety = tweener.create()
+
+var state setget _set_state, _get_state
+
+const STATE_SQUASHING = 0
+const STATE_STRECHING = 1
+
+func _ready():
+	state = SquashingState.new(self)
+	set_process(true)
+	
+	t_skew.target    = self
+	t_skew.function  = \"set_skew\"
+	t_skew.duration  = .5
+	t_skew.ease_func = \"back_out\"
+	t_skew.overshoot = 5
+	
+	var player = get_parent()
+	player.connect(\"stopping\"    , self, \"firm\"      )
+	player.connect(\"turned_left\" , self, \"lean_left\" )
+	player.connect(\"turned_right\", self, \"lean_right\")
+	pass
+
+func _process(delta):
+	state.update(delta)
+	pass
+
+func lean_left():
+	t_skew.reset()
+	t_skew.from = get_skew()
+	t_skew.to   = 0.2
+	t_skew.play()
+	pass
+
+func lean_right():
+	t_skew.reset()
+	t_skew.from = get_skew()
+	t_skew.to   = -0.2
+	t_skew.play()
+	pass
+
+func firm():
+	t_skew.reset()
+	t_skew.from = get_skew()
+	t_skew.to   = 0.0
+	t_skew.play()
+	pass
+
+func set_skew(value):
+	get_material().set_shader_param(\"skew_h\", value)
+	pass
+
+func get_skew():
+	return get_material().get_shader_param(\"skew_h\")
+	pass
+
+func _set_state(new_state):
+	state.exit()
+	if new_state == STATE_SQUASHING: state = SquashingState.new(self)
+	if new_state == STATE_STRECHING: state = StrechingState.new(self)
+	pass
+
+func _get_state():
+	if state extends SquashingState: return STATE_SQUASHING
+	if state extends StrechingState: return STATE_STRECHING
+	pass
+
+# ---------------------------------------------------------------------
+# State
+# ---------------------------------------------------------------------
+class State:
+	var player
+	
+	func _init(player):
+		self.player = player
+		pass
+	
+	func update(delta):
+		pass
+	
+	func exit():
+		pass
+	
+	# end class State
+
+# ---------------------------------------------------------------------
+# SquashingState
+# ---------------------------------------------------------------------
+
+class SquashingState extends State:
+	var t_scale = tweener.create()
+	
+	func _init(player).(player):
+		t_scale.target   = player
+		t_scale.function = \"set_scale\"
+		
+		t_scale.from = player.get_scale()
+		t_scale.to   = Vector2(1.3, 0.7)
+		t_scale.duration  = .2
+		t_scale.ease_func = \"back_out\"
+		t_scale.overshoot = 5
+		t_scale.play()
+		
+		yield(t_scale, \"done\")
+		t_scale.reset()
+		
+		t_scale.from = player.get_scale()
+		t_scale.to   = Vector2(1, 1)
+		t_scale.duration = .2
+		t_scale.ease_func = \"back_out\"
+		t_scale.overshoot = 10
+		t_scale.play()
+		pass
+	
+	func exit():
+		tweener.destroy(t_scale)
+		pass
+	
+	# end class SquashingState
+
+# ---------------------------------------------------------------------
+# StrechingState
+# ---------------------------------------------------------------------
+
+class StrechingState extends State:
+	var t_scale = tweener.create()
+	
+	func _init(player).(player):
+		t_scale.target   = player
+		t_scale.function = \"set_scale\"
+		
+		# strech while going up
+		t_scale.duration = 0.25
+		t_scale.ease_func = \"back_out\"
+		t_scale.from = player.get_scale()
+		t_scale.to   = Vector2(0.7, 1.3)
+		t_scale.reset()
+		t_scale.play()
+		
+		yield(t_scale, \"done\")
+		t_scale.reset()
+		
+		# back to normal
+		t_scale.duration = 0.2
+		t_scale.ease_func = \"quad_out\"
+		t_scale.from = player.get_scale()
+		t_scale.to   = Vector2(1, 1)
+		t_scale.play()
+		
+		yield(t_scale, \"done\")
+		t_scale.reset()
+		
+		# strech while going down
+		t_scale.duration = 1
+		t_scale.ease_func = \"back_out\"
+		t_scale.from = player.get_scale()
+		t_scale.to   = Vector2(0.7, 1.3)
+		t_scale.play()
+		pass
+	
+	func exit():
+		tweener.destroy(t_scale)
+		pass
+	
+	# end class StrechingState
+
+"
+
+[sub_resource type="Animation" id=8]
+
+length = 0.3
+loop = false
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("sprite:transform/scale")
+tracks/0/interp = 1
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 0.2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 0.9, 1.1 ) ]
+}
+
+[sub_resource type="Animation" id=9]
+
+length = 1.0
+loop = false
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("sprite:transform/scale")
+tracks/0/interp = 1
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 0.15, 0.4 ),
+"transitions": FloatArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1.25, 0.75 ), Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="RectangleShape2D" id=10]
+
+custom_solver_bias = 0.0
+extents = Vector2( 5000, 5 )
+
+[sub_resource type="RectangleShape2D" id=11]
+
+custom_solver_bias = 0.0
+extents = Vector2( 5, 360 )
+
+[sub_resource type="RectangleShape2D" id=12]
+
+custom_solver_bias = 0.0
+extents = Vector2( 33, 7 )
+
+[sub_resource type="DynamicFont" id=13]
+
+font/size = 32
+font/use_mipmaps = false
+font/use_filter = false
+font/font = ExtResource( 4 )
+
+[sub_resource type="RectangleShape2D" id=14]
+
+custom_solver_bias = 0.0
+extents = Vector2( 57, 7 )
+
+[sub_resource type="RectangleShape2D" id=15]
+
+custom_solver_bias = 0.0
+extents = Vector2( 6, 7 )
+
+[sub_resource type="RectangleShape2D" id=16]
+
+custom_solver_bias = 0.0
+extents = Vector2( 65, 7 )
+
+[node name="main" type="Node"]
+
+[node name="layer_+1" type="CanvasLayer" parent="."]
+
+editor/display_folded = true
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="vbox_banner" type="VBoxContainer" parent="layer_+1"]
+
+editor/display_folded = true
+anchor/right = 1
+focus/ignore_mouse = false
+focus/stop_mouse = false
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 0.0
+margin/bottom = 146.0
+custom_constants/separation = -15
+alignment = 0
+
+[node name="hbox_pages" type="HBoxContainer" parent="layer_+1/vbox_banner"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = false
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 1280.0
+margin/bottom = 110.0
+custom_constants/separation = 0
+alignment = 1
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="tex_youtube" type="TextureFrame" parent="layer_+1/vbox_banner/hbox_pages"]
+
+rect/min_size = Vector2( 72, 0 )
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 234.0
+margin/top = 0.0
+margin/right = 306.0
+margin/bottom = 110.0
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 6
+
+[node name="margin_0" type="MarginContainer" parent="layer_+1/vbox_banner/hbox_pages"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 306.0
+margin/top = 0.0
+margin/right = 321.0
+margin/bottom = 110.0
+custom_constants/margin_right = 15
+custom_constants/margin_left = 0
+
+[node name="tex_twitter" type="TextureFrame" parent="layer_+1/vbox_banner/hbox_pages"]
+
+rect/min_size = Vector2( 72, 0 )
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 321.0
+margin/top = 0.0
+margin/right = 393.0
+margin/bottom = 110.0
+texture = ExtResource( 2 )
+expand = true
+stretch_mode = 6
+
+[node name="margin_1" type="MarginContainer" parent="layer_+1/vbox_banner/hbox_pages"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 393.0
+margin/top = 0.0
+margin/right = 408.0
+margin/bottom = 110.0
+custom_constants/margin_right = 15
+custom_constants/margin_left = 0
+
+[node name="tex_patreon" type="TextureFrame" parent="layer_+1/vbox_banner/hbox_pages"]
+
+rect/min_size = Vector2( 72, 0 )
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 408.0
+margin/top = 0.0
+margin/right = 480.0
+margin/bottom = 110.0
+texture = ExtResource( 3 )
+expand = true
+stretch_mode = 6
+
+[node name="margin_2" type="MarginContainer" parent="layer_+1/vbox_banner/hbox_pages"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 480.0
+margin/top = 0.0
+margin/right = 495.0
+margin/bottom = 110.0
+custom_constants/margin_right = 15
+custom_constants/margin_left = 0
+
+[node name="hbox_slash" type="VBoxContainer" parent="layer_+1/vbox_banner/hbox_pages"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = false
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 495.0
+margin/top = 0.0
+margin/right = 523.0
+margin/bottom = 110.0
+custom_constants/separation = 0
+alignment = 1
+
+[node name="label" type="Label" parent="layer_+1/vbox_banner/hbox_pages/hbox_slash"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 0.0
+margin/top = 8.0
+margin/right = 28.0
+margin/bottom = 97.0
+custom_fonts/font = SubResource( 1 )
+text = "/"
+valign = 2
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="margin" type="MarginContainer" parent="layer_+1/vbox_banner/hbox_pages/hbox_slash"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 97.0
+margin/right = 28.0
+margin/bottom = 102.0
+custom_constants/margin_top = 5
+
+[node name="margin_3" type="MarginContainer" parent="layer_+1/vbox_banner/hbox_pages"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 523.0
+margin/top = 0.0
+margin/right = 528.0
+margin/bottom = 110.0
+custom_constants/margin_right = 5
+custom_constants/margin_left = 0
+
+[node name="hbox_angega" type="VBoxContainer" parent="layer_+1/vbox_banner/hbox_pages"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = false
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 528.0
+margin/top = 0.0
+margin/right = 1046.0
+margin/bottom = 110.0
+custom_constants/separation = 0
+alignment = 1
+
+[node name="label" type="Label" parent="layer_+1/vbox_banner/hbox_pages/hbox_angega"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 518.0
+margin/bottom = 89.0
+custom_fonts/font = SubResource( 1 )
+text = "angegastudios"
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="margin" type="MarginContainer" parent="layer_+1/vbox_banner/hbox_pages/hbox_angega"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 89.0
+margin/right = 518.0
+margin/bottom = 110.0
+custom_constants/margin_top = 21
+custom_constants/margin_bottom = 0
+
+[node name="label_thanks" type="Label" parent="layer_+1/vbox_banner"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 0.0
+margin/top = 95.0
+margin/right = 1280.0
+margin/bottom = 146.0
+custom_fonts/font = SubResource( 2 )
+text = "Thanks to all my patreons"
+align = 1
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="layer_-1" type="CanvasLayer" parent="."]
+
+editor/display_folded = true
+layer = -1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="background" type="TextureFrame" parent="layer_-1"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 1280.0
+margin/bottom = 720.0
+texture = ExtResource( 5 )
+modulate = Color( 0.227451, 0.278431, 0.313726, 1 )
+expand = true
+stretch_mode = 0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="player" type="KinematicBody2D" parent="."]
+
+transform/pos = Vector2( 395, 355 )
+input/pickable = false
+shapes/0/shape = SubResource( 3 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, 0, -8 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+collision/margin = 0.08
+script/script = SubResource( 4 )
+
+[node name="sprite" type="Sprite" parent="player"]
+
+material/material = SubResource( 6 )
+transform/scale = Vector2( 0.9, 1.1 )
+texture = ExtResource( 5 )
+centered = false
+offset = Vector2( -8, -16 )
+modulate = Color( 1, 0.768627, 0.498039, 1 )
+script/script = SubResource( 7 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="shape" type="CollisionShape2D" parent="player"]
+
+visibility/visible = false
+transform/pos = Vector2( 0, -8 )
+shape = SubResource( 3 )
+trigger = false
+_update_shape_index = 0
+
+[node name="anim" type="AnimationPlayer" parent="player"]
+
+playback/process_mode = 1
+playback/default_blend_time = 0.0
+root/root = NodePath("..")
+anims/jump = SubResource( 8 )
+anims/land = SubResource( 9 )
+playback/active = true
+playback/speed = 1.0
+blend_times = [  ]
+autoplay = ""
+
+[node name="camera" type="Camera2D" parent="player"]
+
+transform/pos = Vector2( 1.19745, -26.0126 )
+anchor_mode = 1
+rotating = false
+current = true
+zoom = Vector2( 0.4, 0.4 )
+limit/left = -10000000
+limit/top = -10000000
+limit/right = 10000000
+limit/bottom = 10000000
+drag_margin/h_enabled = true
+drag_margin/v_enabled = true
+smoothing/enable = false
+smoothing/speed = 5.0
+drag_margin/left = 0.1
+drag_margin/top = 1.0
+drag_margin/right = 0.1
+drag_margin/bottom = 1.0
+
+[node name="statics" type="Node2D" parent="."]
+
+[node name="ground" type="StaticBody2D" parent="statics"]
+
+editor/display_folded = true
+transform/pos = Vector2( 0, 420 )
+input/pickable = false
+shapes/0/shape = SubResource( 10 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, 5000, 5 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+constant_linear_velocity = Vector2( 0, 0 )
+constant_angular_velocity = 0.0
+friction = 1.0
+bounce = 0.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="origin" type="Position2D" parent="statics/ground"]
+
+[node name="shape" type="CollisionShape2D" parent="statics/ground"]
+
+transform/pos = Vector2( 5000, 5 )
+shape = SubResource( 10 )
+trigger = false
+_update_shape_index = 0
+
+[node name="wall_left" type="StaticBody2D" parent="statics"]
+
+editor/display_folded = true
+input/pickable = false
+shapes/0/shape = SubResource( 11 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, 5, 360 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+constant_linear_velocity = Vector2( 0, 0 )
+constant_angular_velocity = 0.0
+friction = 1.0
+bounce = 0.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="origin" type="Position2D" parent="statics/wall_left"]
+
+[node name="shape" type="CollisionShape2D" parent="statics/wall_left"]
+
+transform/pos = Vector2( 5, 360 )
+shape = SubResource( 11 )
+trigger = false
+_update_shape_index = 0
+
+[node name="wall_right" type="StaticBody2D" parent="statics"]
+
+editor/display_folded = true
+transform/pos = Vector2( 1280, 0 )
+input/pickable = false
+shapes/0/shape = SubResource( 11 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, -5, 360 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+constant_linear_velocity = Vector2( 0, 0 )
+constant_angular_velocity = 0.0
+friction = 1.0
+bounce = 0.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="origin" type="Position2D" parent="statics/wall_right"]
+
+[node name="shape" type="CollisionShape2D" parent="statics/wall_right"]
+
+transform/pos = Vector2( -5, 360 )
+shape = SubResource( 11 )
+trigger = false
+_update_shape_index = 0
+
+[node name="patreons" type="Node2D" parent="statics"]
+
+editor/display_folded = true
+
+[node name="patreon_0" type="StaticBody2D" parent="statics/patreons"]
+
+editor/display_folded = true
+transform/pos = Vector2( 440, 420 )
+input/pickable = false
+shapes/0/shape = SubResource( 12 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, -1, -7 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+constant_linear_velocity = Vector2( 0, 0 )
+constant_angular_velocity = 0.0
+friction = 1.0
+bounce = 0.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="origin" type="Position2D" parent="statics/patreons/patreon_0"]
+
+[node name="label" type="Label" parent="statics/patreons/patreon_0"]
+
+anchor/left = 3
+anchor/top = 1
+anchor/right = 3
+anchor/bottom = 1
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 65.0
+margin/top = 86.0
+margin/right = -1.0
+margin/bottom = 60.0
+custom_fonts/font = SubResource( 13 )
+custom_colors/font_color = Color( 1, 0.768627, 0.498039, 1 )
+text = "Evelyn"
+valign = 3
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="shape" type="CollisionShape2D" parent="statics/patreons/patreon_0"]
+
+transform/pos = Vector2( -1, -7 )
+shape = SubResource( 12 )
+trigger = false
+_update_shape_index = 0
+
+[node name="patreon_1" type="StaticBody2D" parent="statics/patreons"]
+
+editor/display_folded = true
+transform/pos = Vector2( 630.131, 420 )
+input/pickable = false
+shapes/0/shape = SubResource( 14 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, -1, -7 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+constant_linear_velocity = Vector2( 0, 0 )
+constant_angular_velocity = 0.0
+friction = 1.0
+bounce = 0.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="origin" type="Position2D" parent="statics/patreons/patreon_1"]
+
+[node name="label" type="Label" parent="statics/patreons/patreon_1"]
+
+anchor/left = 3
+anchor/top = 1
+anchor/right = 3
+anchor/bottom = 1
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 89.0
+margin/top = 86.0
+margin/right = -25.0
+margin/bottom = 60.0
+custom_fonts/font = SubResource( 13 )
+custom_colors/font_color = Color( 1, 0.768627, 0.498039, 1 )
+text = "HeartBeast"
+align = 1
+valign = 3
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="shape" type="CollisionShape2D" parent="statics/patreons/patreon_1"]
+
+transform/pos = Vector2( -1, -7 )
+shape = SubResource( 14 )
+trigger = false
+_update_shape_index = 0
+
+[node name="patreon_2" type="StaticBody2D" parent="statics/patreons"]
+
+editor/display_folded = true
+transform/pos = Vector2( 793.009, 420 )
+input/pickable = false
+shapes/0/shape = SubResource( 15 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, -1, -7 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+constant_linear_velocity = Vector2( 0, 0 )
+constant_angular_velocity = 0.0
+friction = 1.0
+bounce = 0.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="origin" type="Position2D" parent="statics/patreons/patreon_2"]
+
+[node name="label" type="Label" parent="statics/patreons/patreon_2"]
+
+anchor/left = 3
+anchor/top = 1
+anchor/right = 3
+anchor/bottom = 1
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 38.0
+margin/top = 86.0
+margin/right = 26.0
+margin/bottom = 60.0
+custom_fonts/font = SubResource( 13 )
+custom_colors/font_color = Color( 1, 0.768627, 0.498039, 1 )
+text = "D"
+align = 1
+valign = 3
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="shape" type="CollisionShape2D" parent="statics/patreons/patreon_2"]
+
+transform/pos = Vector2( -1, -7 )
+shape = SubResource( 15 )
+trigger = false
+_update_shape_index = 0
+
+[node name="patreon_3" type="StaticBody2D" parent="statics/patreons"]
+
+editor/display_folded = true
+transform/pos = Vector2( 963.931, 420 )
+input/pickable = false
+shapes/0/shape = SubResource( 16 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, -1, -7 )
+shapes/0/trigger = false
+collision/layers = 1
+collision/mask = 1
+constant_linear_velocity = Vector2( 0, 0 )
+constant_angular_velocity = 0.0
+friction = 1.0
+bounce = 0.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="origin" type="Position2D" parent="statics/patreons/patreon_3"]
+
+[node name="label" type="Label" parent="statics/patreons/patreon_3"]
+
+anchor/left = 3
+anchor/top = 1
+anchor/right = 3
+anchor/bottom = 1
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 97.0
+margin/top = 86.0
+margin/right = -33.0
+margin/bottom = 60.0
+custom_fonts/font = SubResource( 13 )
+custom_colors/font_color = Color( 1, 0.768627, 0.498039, 1 )
+text = "Judd Gledhill"
+valign = 3
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="shape" type="CollisionShape2D" parent="statics/patreons/patreon_3"]
+
+transform/pos = Vector2( -1, -7 )
+shape = SubResource( 16 )
+trigger = false
+_update_shape_index = 0
+
+[node name="rule" type="TextureFrame" parent="."]
+
+visibility/visible = false
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 798.0
+margin/top = 366.0
+margin/right = 898.0
+margin/bottom = 380.0
+texture = ExtResource( 5 )
+modulate = Color( 0.494118, 0.545098, 0.611765, 1 )
+expand = true
+stretch_mode = 0
+
+

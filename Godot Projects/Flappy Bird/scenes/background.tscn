@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=1]
+
+[ext_resource path="res://sprites/background_night.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=1]
+
+resource/name = "background_sprite"
+script/source = "# script background_sprite
+
+extends Sprite
+
+func _ready():
+	set_texture( game.background_textures[game.texture_picker] )
+	set_region_rect( Rect2(0, 0, 144 * int(stage_manager.AMOUNT_TO_FILL_VIEW), 256) )
+	get_tree().connect(\"screen_resized\", self, \"_on_screen_resized\")
+	pass
+
+func _on_screen_resized():
+	set_region_rect( Rect2(0, 0, 144 * int(stage_manager.AMOUNT_TO_FILL_VIEW), 256) )
+	pass
+"
+
+[node name="background" type="CanvasLayer"]
+
+layer = -1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="sprite" type="Sprite" parent="."]
+
+texture = ExtResource( 1 )
+centered = false
+region = true
+region_rect = Rect2( 0, 0, 144, 256 )
+script/script = SubResource( 1 )
+
+

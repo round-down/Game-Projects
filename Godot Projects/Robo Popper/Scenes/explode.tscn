@@ -1,0 +1,63 @@
+[gd_scene load_steps=4 format=1]
+
+[ext_resource path="res://Images/Fire Particle.tex" type="Texture" id=1]
+
+[sub_resource type="ColorRamp" id=1]
+
+offsets = FloatArray( 0, 0.51462, 1 )
+colors = ColorArray( 1, 1, 1, 1, 1, 0.515625, 0, 1, 1, 0, 0, 1 )
+
+[sub_resource type="GDScript" id=2]
+
+resource/name = "explode"
+script/source = "extends Particles2D
+
+onready var timer = get_node(\"timer\")
+
+func _ready():
+	set_emitting(true)
+	timer.start()
+	yield(timer,\"timeout\")
+	queue_free()
+	pass
+"
+
+[node name="explode" type="Particles2D"]
+
+config/amount = 60
+config/lifetime = 1.0
+config/emit_timeout = 1.0
+config/emitting = false
+config/process_mode = 1
+config/local_space = false
+config/explosiveness = 0.1
+config/texture = ExtResource( 1 )
+params/direction = 0.0
+params/spread = 180.0
+params/linear_velocity = 450.0
+params/spin_velocity = 150.0
+params/orbit_velocity = 0.0
+params/gravity_direction = 0.0
+params/gravity_strength = 0.0
+params/radial_accel = 0.0
+params/tangential_accel = 0.0
+params/damping = 0.0
+params/initial_angle = 0.0
+params/initial_size = 5.0
+params/final_size = 0.001
+params/hue_variation = 0.0
+params/anim_speed_scale = 1.0
+params/anim_initial_pos = 0.0
+randomness/linear_velocity = 0.5
+randomness/spin_velocity = 1.0
+color/color_ramp = SubResource( 1 )
+script/script = SubResource( 2 )
+
+[node name="timer" type="Timer" parent="."]
+
+process_mode = 1
+wait_time = 1.0
+one_shot = true
+autostart = false
+
+

@@ -1,0 +1,563 @@
+[gd_scene load_steps=23 format=1]
+
+[ext_resource path="res://Scripts/main menu.gd" type="Script" id=1]
+[ext_resource path="res://Animated BG/space8.tex" type="Texture" id=2]
+[ext_resource path="res://Animated BG/space7.tex" type="Texture" id=3]
+[ext_resource path="res://Animated BG/space6.tex" type="Texture" id=4]
+[ext_resource path="res://Animated BG/space5.tex" type="Texture" id=5]
+[ext_resource path="res://Animated BG/space4.tex" type="Texture" id=6]
+[ext_resource path="res://Animated BG/space3.tex" type="Texture" id=7]
+[ext_resource path="res://Animated BG/space2.tex" type="Texture" id=8]
+[ext_resource path="res://Animated BG/space1.tex" type="Texture" id=9]
+[ext_resource path="res://Scripts/stars.gd" type="Script" id=10]
+[ext_resource path="res://Images/logo.tex" type="Texture" id=11]
+[ext_resource path="res://Themes/gold_buttons.tres" type="Theme" id=12]
+[ext_resource path="res://Font/m5x7.fnt" type="BitmapFont" id=13]
+[ext_resource path="res://Scenes/hud.tscn" type="PackedScene" id=14]
+
+[sub_resource type="SpriteFrames" id=1]
+
+animations = [ {
+"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ) ],
+"loop": true,
+"name": "default",
+"speed": 7.5
+} ]
+
+[sub_resource type="GDScript" id=2]
+
+resource/name = "play"
+script/source = "extends Button
+
+func _pressed():
+	snd_player.play(\"little_click\")
+	pass"
+
+[sub_resource type="GDScript" id=3]
+
+resource/name = "hide bg"
+script/source = "extends CheckBox
+
+func _ready():
+	if global.hide_bg == false:
+		set_pressed(false)
+	else:
+		set_pressed(true)
+	pass
+"
+
+[sub_resource type="Animation" id=4]
+
+length = 0.5
+loop = true
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:custom_colors/font_color")
+tracks/0/interp = 1
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5 ),
+"transitions": FloatArray( 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 0.972549, 0.12549, 0.156863, 1 ), Color( 0.972549, 0.784314, 0.12549, 1 ), Color( 0.12549, 0.345098, 0.972549, 1 ), Color( 0.847059, 0.12549, 0.972549, 1 ), Color( 0.313726, 0.878431, 0.219608, 1 ), Color( 0.972549, 0.12549, 0.156863, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:custom_colors/font_color_shadow")
+tracks/1/interp = 1
+tracks/1/imported = false
+tracks/1/keys = {
+"times": FloatArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5 ),
+"transitions": FloatArray( 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 0.313726, 0.878431, 0.219608, 1 ), Color( 0.972549, 0.12549, 0.156863, 1 ), Color( 0.972549, 0.784314, 0.12549, 1 ), Color( 0.12549, 0.345098, 0.972549, 1 ), Color( 0.847059, 0.12549, 0.972549, 1 ), Color( 0.313726, 0.878431, 0.219608, 1 ) ]
+}
+
+[sub_resource type="Animation" id=5]
+
+length = 1.0
+loop = false
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rect/pos")
+tracks/0/interp = 2
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 0.5, 1 ),
+"transitions": FloatArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 647, 344 ), Vector2( 450, 344 ), Vector2( 537, 344 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("anim:playback/speed")
+tracks/1/interp = 1
+tracks/1/imported = false
+tracks/1/keys = {
+"times": FloatArray( 0, 0.3, 0.6, 1 ),
+"transitions": FloatArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ 0.3, 1.0, 1.4, 0.3 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("secret:disabled")
+tracks/2/interp = 1
+tracks/2/imported = false
+tracks/2/keys = {
+"times": FloatArray( 0, 1 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+
+[sub_resource type="GDScript" id=6]
+
+resource/name = "max_mobs"
+script/source = "extends LineEdit
+
+func _ready():
+	set_text(str(global.max_mobs))
+	pass
+"
+
+[sub_resource type="Animation" id=7]
+
+length = 1.2
+loop = true
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("other_hud/logo:transform/pos")
+tracks/0/interp = 2
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 0.3, 0.6 ),
+"transitions": FloatArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 320, 100 ), Vector2( 320, 110 ), Vector2( 320, 120 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("other_hud/play:rect/pos")
+tracks/1/interp = 2
+tracks/1/imported = false
+tracks/1/keys = {
+"times": FloatArray( 0.3, 0.6 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 266, 210 ), Vector2( 266, 215 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("bg:visibility/opacity")
+tracks/2/interp = 2
+tracks/2/imported = false
+tracks/2/keys = {
+"times": FloatArray( 0.4, 0.7 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ 0.5, 1.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("other_hud/play:visibility/opacity")
+tracks/3/interp = 1
+tracks/3/imported = false
+tracks/3/keys = {
+"times": FloatArray( 0 ),
+"transitions": FloatArray( 1 ),
+"update": 0,
+"values": [ 1.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("other_hud/play:disabled")
+tracks/4/interp = 1
+tracks/4/imported = false
+tracks/4/keys = {
+"times": FloatArray( 0 ),
+"transitions": FloatArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("anim:playback/speed")
+tracks/5/interp = 1
+tracks/5/imported = false
+tracks/5/keys = {
+"times": FloatArray( 0 ),
+"transitions": FloatArray( 1 ),
+"update": 0,
+"values": [ 0.3 ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("other_hud/hide bg:rect/pos")
+tracks/6/interp = 1
+tracks/6/imported = false
+tracks/6/keys = {
+"times": FloatArray( 0 ),
+"transitions": FloatArray( 1 ),
+"update": 0,
+"values": [ Vector2( 10, 10 ) ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("hud/mute sounds:rect/pos")
+tracks/7/interp = 1
+tracks/7/imported = false
+tracks/7/keys = {
+"times": FloatArray( 0 ),
+"transitions": FloatArray( 1 ),
+"update": 0,
+"values": [ Vector2( 600, 2 ) ]
+}
+tracks/8/type = "value"
+tracks/8/path = NodePath("hud/mute music:rect/pos")
+tracks/8/interp = 1
+tracks/8/imported = false
+tracks/8/keys = {
+"times": FloatArray( 0 ),
+"transitions": FloatArray( 1 ),
+"update": 0,
+"values": [ Vector2( 563, 2 ) ]
+}
+
+[sub_resource type="Animation" id=8]
+
+length = 1.2
+loop = false
+step = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("other_hud/logo:transform/pos")
+tracks/0/interp = 2
+tracks/0/imported = false
+tracks/0/keys = {
+"times": FloatArray( 0, 1 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 320, -100 ), Vector2( 320, 100 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("anim:playback/speed")
+tracks/1/interp = 2
+tracks/1/imported = false
+tracks/1/keys = {
+"times": FloatArray( 0, 1 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ 1.0, 0.5 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("other_hud/play:visibility/opacity")
+tracks/2/interp = 2
+tracks/2/imported = false
+tracks/2/keys = {
+"times": FloatArray( 1.1, 1.2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, 0.75 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("other_hud/play:disabled")
+tracks/3/interp = 2
+tracks/3/imported = false
+tracks/3/keys = {
+"times": FloatArray( 0, 1.2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("bg:visibility/opacity")
+tracks/4/interp = 2
+tracks/4/imported = false
+tracks/4/keys = {
+"times": FloatArray( 0, 1.2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, 1.0 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("other_hud/hide bg:rect/pos")
+tracks/5/interp = 2
+tracks/5/imported = false
+tracks/5/keys = {
+"times": FloatArray( 0, 1.2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 10, -50 ), Vector2( 10, 10 ) ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("hud/mute sounds:rect/pos")
+tracks/6/interp = 2
+tracks/6/imported = false
+tracks/6/keys = {
+"times": FloatArray( 0, 1.2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 600, -50 ), Vector2( 600, 2 ) ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("hud/mute music:rect/pos")
+tracks/7/interp = 2
+tracks/7/imported = false
+tracks/7/keys = {
+"times": FloatArray( 0, 1.2 ),
+"transitions": FloatArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 563, -50 ), Vector2( 563, 2 ) ]
+}
+
+[node name="main menu" type="Node"]
+
+script/script = ExtResource( 1 )
+
+[node name="bg" type="AnimatedSprite" parent="."]
+
+visibility/opacity = 0.87963
+transform/scale = Vector2( 0.82, 0.8 )
+z/z = -1
+frames = SubResource( 1 )
+animation = "default"
+frame = 6
+playing = true
+centered = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="stars" type="Particles2D" parent="."]
+
+transform/pos = Vector2( 320, -30 )
+transform/scale = Vector2( 10, 0.948047 )
+config/amount = 64
+config/lifetime = 10.0
+config/process_mode = 1
+config/half_extents = Vector2( 32, 0 )
+config/local_space = false
+params/direction = 0.0
+params/spread = 0.0
+params/linear_velocity = 50.0
+params/spin_velocity = 0.0
+params/orbit_velocity = 0.0
+params/gravity_direction = 0.0
+params/gravity_strength = 0.0
+params/radial_accel = 0.0
+params/tangential_accel = 0.0
+params/damping = 0.0
+params/initial_angle = 0.0
+params/initial_size = 3.5
+params/final_size = 3.5
+params/hue_variation = 0.0
+params/anim_speed_scale = 1.0
+params/anim_initial_pos = 0.0
+randomness/linear_velocity = 1.0
+randomness/hue_variation = 1.0
+color/color = Color( 0.24636, 0.20401, 0.746094, 1 )
+script/script = ExtResource( 10 )
+
+[node name="other_hud" type="CanvasLayer" parent="."]
+
+editor/display_folded = true
+layer = 3
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="logo" type="Sprite" parent="other_hud"]
+
+transform/pos = Vector2( 320, 100 )
+transform/scale = Vector2( 0.693798, 0.693798 )
+texture = ExtResource( 11 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="play" type="Button" parent="other_hud"]
+
+visibility/opacity = 0.0
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = ExtResource( 12 )
+margin/left = 266.0
+margin/top = 211.296
+margin/right = 374.0
+margin/bottom = 251.296
+custom_fonts/font = ExtResource( 13 )
+disabled = true
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+text = "Play"
+flat = false
+script/script = SubResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="hide bg" type="CheckBox" parent="other_hud"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 10.0
+margin/top = 2.77778
+margin/right = 94.0
+margin/bottom = 25.7778
+custom_fonts/font = ExtResource( 13 )
+toggle_mode = true
+enabled_focus_mode = 0
+shortcut = null
+text = "Hide bg"
+flat = false
+align = 0
+script/script = SubResource( 3 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="company" type="Label" parent="other_hud"]
+
+editor/display_folded = true
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 647.0
+margin/top = 344.0
+margin/right = 746.0
+margin/bottom = 358.0
+custom_fonts/font = ExtResource( 13 )
+custom_colors/font_color = Color( 0.847059, 0.12549, 0.972549, 1 )
+custom_colors/font_color_shadow = Color( 0.12549, 0.345098, 0.972549, 1 )
+text = "Abbacus Inc."
+align = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="anim" type="AnimationPlayer" parent="other_hud/company"]
+
+playback/process_mode = 1
+playback/default_blend_time = 0.0
+root/root = NodePath("..")
+anims/animate = SubResource( 4 )
+anims/intro = SubResource( 5 )
+playback/active = true
+playback/speed = 0.3
+blend_times = [  ]
+autoplay = ""
+
+[node name="secret" type="TextureButton" parent="other_hud/company"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 100.0
+margin/bottom = 15.0
+disabled = true
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+params/resize_mode = 0
+params/stretch_mode = 0
+
+[node name="max_mobs" type="LineEdit" parent="other_hud"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 20.0
+margin/top = 330.0
+margin/right = 78.0
+margin/bottom = 354.0
+placeholder/alpha = 0.6
+align = 1
+focus_mode = 2
+caret/caret_blink = false
+caret/caret_blink_speed = 0.65
+script/script = SubResource( 6 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="max_mobs_lbl" type="Label" parent="other_hud/max_mobs"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = -10.0
+margin/top = -20.0
+margin/right = 67.0
+margin/bottom = -6.0
+custom_fonts/font = ExtResource( 13 )
+text = "Max Mobs"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="hud" parent="." instance=ExtResource( 14 )]
+
+[node name="mute music" parent="hud"]
+
+visibility/opacity = 1.0
+margin/left = 563.0
+margin/top = -4.25926
+margin/right = 592.0
+margin/bottom = 24.7407
+
+[node name="mute sounds" parent="hud"]
+
+visibility/opacity = 1.0
+margin/left = 600.0
+margin/top = -4.25926
+margin/right = 629.0
+margin/bottom = 24.7407
+
+[node name="clear all" parent="hud"]
+
+visibility/visible = false
+disabled = true
+script/script = null
+
+[node name="menu" parent="hud"]
+
+visibility/visible = false
+disabled = true
+script/script = null
+
+[node name="score" parent="hud"]
+
+visibility/visible = false
+
+[node name="powerup" parent="hud"]
+
+visibility/visible = false
+
+[node name="anim" type="AnimationPlayer" parent="."]
+
+playback/process_mode = 1
+playback/default_blend_time = 0.0
+root/root = NodePath("..")
+anims/hover = SubResource( 7 )
+anims/intro = SubResource( 8 )
+playback/active = true
+playback/speed = 0.5
+blend_times = [  ]
+autoplay = ""
+
+[connection signal="pressed" from="other_hud/play" to="." method="_on_play_pressed"]
+
+[connection signal="toggled" from="other_hud/hide bg" to="." method="_on_hide_bg_toggled"]
+
+[connection signal="finished" from="other_hud/company/anim" to="." method="_on_anim_company_finished"]
+
+[connection signal="pressed" from="other_hud/company/secret" to="." method="_on_secret_pressed"]
+
+[connection signal="text_entered" from="other_hud/max_mobs" to="." method="_on_max_mobs_text_entered"]
+
+[connection signal="finished" from="anim" to="." method="_on_anim_finished"]
+
+
+[editable path="hud"]

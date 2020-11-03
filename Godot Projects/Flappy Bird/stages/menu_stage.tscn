@@ -1,0 +1,560 @@
+[gd_scene load_steps=31 format=1]
+
+[ext_resource path="res://scenes/bird.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scripts/camera.gd" type="Script" id=2]
+[ext_resource path="res://scenes/spawner_ground.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/background.tscn" type="PackedScene" id=4]
+[ext_resource path="res://sprites/label_flappy_bird.png" type="Texture" id=5]
+[ext_resource path="res://sprites/button_rate_normal.png" type="Texture" id=6]
+[ext_resource path="res://sprites/button_rate_pressed.png" type="Texture" id=7]
+[ext_resource path="res://sprites/button_play_normal.png" type="Texture" id=8]
+[ext_resource path="res://sprites/button_play_pressed.png" type="Texture" id=9]
+[ext_resource path="res://sprites/button_score_normal.png" type="Texture" id=10]
+[ext_resource path="res://sprites/button_score_pressed.png" type="Texture" id=11]
+[ext_resource path="res://sprites/rect_black.png" type="Texture" id=12]
+[ext_resource path="res://sprites/panel_settings.png" type="Texture" id=13]
+[ext_resource path="res://sprites/check_box_checked.png" type="Texture" id=14]
+[ext_resource path="res://sprites/check_box_unchecked.png" type="Texture" id=15]
+[ext_resource path="res://sprites/label_yellow.png" type="Texture" id=16]
+[ext_resource path="res://sprites/label_red.png" type="Texture" id=17]
+[ext_resource path="res://sprites/label_blue.png" type="Texture" id=18]
+[ext_resource path="res://sprites/label_green.png" type="Texture" id=19]
+[ext_resource path="res://sprites/button_settings.png" type="Texture" id=20]
+[ext_resource path="res://sprites/button_settings_pressed.png" type="Texture" id=21]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "# script btn_play (menu_stage)
+
+extends TextureButton
+
+func _ready():
+	connect(\"pressed\", self, \"_on_pressed\")
+	pass
+
+func _on_pressed():
+	stage_manager.change_stage(stage_manager.STAGE_GAME)
+	pass"
+
+[sub_resource type="GDScript" id=2]
+
+resource/name = "cntr_settings"
+script/source = "# script cntr_settings
+
+extends Container
+
+var btn_settings
+
+func _ready():
+	hide()
+	btn_settings = utils._get_main_node().find_node(\"btn_settings\")
+	if btn_settings:
+		btn_settings.connect(\"toggled\", self, \"_on_toggled\")
+	pass
+
+func _on_toggled(pressed):
+	if pressed == true: show()
+	else              : hide()
+	pass
+"
+
+[sub_resource type="Theme" id=3]
+
+CheckBox/colors/font_color = Color( 0.878431, 0.878431, 0.878431, 1 )
+CheckBox/colors/font_color_disabled = Color( 0.9, 0.9, 0.9, 0.2 )
+CheckBox/colors/font_color_hover = Color( 0.941176, 0.941176, 0.941176, 1 )
+CheckBox/colors/font_color_pressed = Color( 1, 1, 1, 1 )
+CheckBox/constants/check_vadjust = 0
+CheckBox/constants/hseparation = 4
+CheckBox/fonts/font = null
+CheckBox/icons/checked = ExtResource( 14 )
+CheckBox/icons/radio_checked = ExtResource( 14 )
+CheckBox/icons/radio_unchecked = ExtResource( 15 )
+CheckBox/icons/unchecked = ExtResource( 15 )
+CheckBox/styles/disabled = null
+CheckBox/styles/focus = null
+CheckBox/styles/hover = null
+CheckBox/styles/normal = null
+CheckBox/styles/pressed = null
+
+[sub_resource type="StyleBoxEmpty" id=4]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+
+[sub_resource type="StyleBoxEmpty" id=5]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+
+[sub_resource type="StyleBoxEmpty" id=6]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+
+[sub_resource type="StyleBoxEmpty" id=7]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+
+[sub_resource type="StyleBoxEmpty" id=8]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+
+[sub_resource type="GDScript" id=9]
+
+script/source = "# script btn_settings
+
+extends TextureButton
+
+func _ready():
+	pass
+"
+
+[node name="main_menu" type="Node"]
+
+[node name="bird" parent="." instance=ExtResource( 1 )]
+
+transform/pos = Vector2( 72, 110 )
+
+[node name="camera" type="Camera2D" parent="."]
+
+offset = Vector2( -72, 0 )
+anchor_mode = 0
+rotating = false
+current = true
+zoom = Vector2( 1, 1 )
+limit/left = -10000000
+limit/top = -10000000
+limit/right = 10000000
+limit/bottom = 10000000
+drag_margin/h_enabled = true
+drag_margin/v_enabled = true
+smoothing/enable = false
+smoothing/speed = 5.0
+drag_margin/left = 0.2
+drag_margin/top = 0.2
+drag_margin/right = 0.2
+drag_margin/bottom = 0.2
+script/script = ExtResource( 2 )
+
+[node name="spawner_ground" parent="." instance=ExtResource( 3 )]
+
+[node name="background" parent="." instance=ExtResource( 4 )]
+
+[node name="hud" type="CanvasLayer" parent="."]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="tex_flappybird" type="TextureFrame" parent="hud"]
+
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 44.0
+margin/top = 58.0
+margin/right = -45.0
+margin/bottom = 34.0
+texture = ExtResource( 5 )
+stretch_mode = 0
+
+[node name="btn_rate" type="TextureButton" parent="hud"]
+
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 15.0
+margin/top = -7.0
+margin/right = -16.0
+margin/bottom = -25.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+textures/normal = ExtResource( 6 )
+textures/pressed = ExtResource( 7 )
+params/resize_mode = 0
+params/stretch_mode = 0
+
+[node name="hbox_buttons" type="HBoxContainer" parent="hud"]
+
+editor/display_folded = true
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = false
+focus/stop_mouse = false
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 56.0
+margin/top = -32.0
+margin/right = -57.0
+margin/bottom = -61.0
+custom_constants/separation = 9
+alignment = 1
+
+[node name="btn_play" type="TextureButton" parent="hud/hbox_buttons"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 52.0
+margin/bottom = 29.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+textures/normal = ExtResource( 8 )
+textures/pressed = ExtResource( 9 )
+params/resize_mode = 0
+params/stretch_mode = 0
+script/script = SubResource( 1 )
+
+[node name="btn_scores" type="TextureButton" parent="hud/hbox_buttons"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 61.0
+margin/top = 0.0
+margin/right = 113.0
+margin/bottom = 29.0
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+textures/normal = ExtResource( 10 )
+textures/pressed = ExtResource( 11 )
+params/resize_mode = 0
+params/stretch_mode = 0
+
+[node name="cntr_settings" type="Container" parent="hud"]
+
+process/pause_mode = 2
+editor/display_folded = true
+visibility/visible = false
+anchor/right = 1
+anchor/bottom = 1
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 0.0
+margin/bottom = 0.0
+script/script = SubResource( 2 )
+
+[node name="tex_black" type="TextureFrame" parent="hud/cntr_settings"]
+
+visibility/self_opacity = 0.5
+visibility/behind_parent = true
+anchor/right = 1
+anchor/bottom = 1
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 0.0
+margin/bottom = 0.0
+texture = ExtResource( 12 )
+expand = true
+stretch_mode = 0
+
+[node name="tex_settings" type="TextureFrame" parent="hud/cntr_settings"]
+
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 56.0
+margin/top = 85.0
+margin/right = -58.0
+margin/bottom = -86.0
+texture = ExtResource( 13 )
+stretch_mode = 0
+
+[node name="check_bird_texture" type="Container" parent="hud/cntr_settings"]
+
+editor/display_folded = true
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 50.0
+margin/top = 58.0
+margin/right = 8.0
+margin/bottom = 8.0
+
+[node name="check_yellow" type="CheckBox" parent="hud/cntr_settings/check_bird_texture"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 0
+size_flags/vertical = 0
+theme/theme = SubResource( 3 )
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 13.0
+margin/bottom = 14.0
+custom_icons/radio_checked = ExtResource( 14 )
+custom_icons/checked = ExtResource( 14 )
+custom_icons/radio_unchecked = ExtResource( 15 )
+custom_icons/unchecked = ExtResource( 15 )
+custom_styles/hover = SubResource( 4 )
+custom_styles/pressed = SubResource( 5 )
+custom_styles/focus = SubResource( 6 )
+custom_styles/disabled = SubResource( 7 )
+custom_styles/normal = SubResource( 8 )
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+flat = false
+align = 0
+
+[node name="lbl_yellow" type="TextureFrame" parent="hud/cntr_settings/check_bird_texture/check_yellow"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 17.0
+margin/top = 3.0
+margin/right = 42.0
+margin/bottom = 10.0
+texture = ExtResource( 16 )
+stretch_mode = 0
+
+[node name="check_red" type="CheckBox" parent="hud/cntr_settings/check_bird_texture"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 0
+size_flags/vertical = 0
+theme/theme = SubResource( 3 )
+margin/left = 0.0
+margin/top = 18.0
+margin/right = 13.0
+margin/bottom = 32.0
+custom_icons/radio_checked = ExtResource( 14 )
+custom_icons/checked = ExtResource( 14 )
+custom_icons/radio_unchecked = ExtResource( 15 )
+custom_icons/unchecked = ExtResource( 15 )
+custom_styles/hover = SubResource( 4 )
+custom_styles/pressed = SubResource( 5 )
+custom_styles/focus = SubResource( 6 )
+custom_styles/disabled = SubResource( 7 )
+custom_styles/normal = SubResource( 8 )
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+flat = false
+align = 0
+
+[node name="lbl_red" type="TextureFrame" parent="hud/cntr_settings/check_bird_texture/check_red"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 17.0
+margin/top = 3.0
+margin/right = 32.0
+margin/bottom = 10.0
+texture = ExtResource( 17 )
+stretch_mode = 0
+
+[node name="check_blue" type="CheckBox" parent="hud/cntr_settings/check_bird_texture"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 0
+size_flags/vertical = 0
+theme/theme = SubResource( 3 )
+margin/left = 0.0
+margin/top = 36.0
+margin/right = 13.0
+margin/bottom = 50.0
+custom_icons/radio_checked = ExtResource( 14 )
+custom_icons/checked = ExtResource( 14 )
+custom_icons/radio_unchecked = ExtResource( 15 )
+custom_icons/unchecked = ExtResource( 15 )
+custom_styles/hover = SubResource( 4 )
+custom_styles/pressed = SubResource( 5 )
+custom_styles/focus = SubResource( 6 )
+custom_styles/disabled = SubResource( 7 )
+custom_styles/normal = SubResource( 8 )
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+flat = false
+align = 0
+
+[node name="lbl_blue" type="TextureFrame" parent="hud/cntr_settings/check_bird_texture/check_blue"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 16.0
+margin/top = 3.0
+margin/right = 33.0
+margin/bottom = 10.0
+texture = ExtResource( 18 )
+stretch_mode = 0
+
+[node name="check_pipe_texture" type="Container" parent="hud/cntr_settings"]
+
+editor/display_folded = true
+anchor/left = 3
+anchor/top = 3
+anchor/right = 3
+anchor/bottom = 3
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 50.0
+margin/top = -6.0
+margin/right = 10.0
+margin/bottom = -38.0
+
+[node name="check_red" type="CheckBox" parent="hud/cntr_settings/check_pipe_texture"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 0
+size_flags/vertical = 0
+theme/theme = SubResource( 3 )
+margin/left = 0.0
+margin/top = 18.0
+margin/right = 13.0
+margin/bottom = 32.0
+custom_icons/radio_checked = ExtResource( 14 )
+custom_icons/checked = ExtResource( 14 )
+custom_icons/radio_unchecked = ExtResource( 15 )
+custom_icons/unchecked = ExtResource( 15 )
+custom_styles/hover = SubResource( 4 )
+custom_styles/pressed = SubResource( 5 )
+custom_styles/focus = SubResource( 6 )
+custom_styles/disabled = SubResource( 7 )
+custom_styles/normal = SubResource( 8 )
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+flat = false
+align = 0
+
+[node name="lbl_red" type="TextureFrame" parent="hud/cntr_settings/check_pipe_texture/check_red"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 17.0
+margin/top = 3.0
+margin/right = 32.0
+margin/bottom = 10.0
+texture = ExtResource( 17 )
+stretch_mode = 0
+
+[node name="check_green" type="CheckBox" parent="hud/cntr_settings/check_pipe_texture"]
+
+editor/display_folded = true
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 0
+size_flags/vertical = 0
+theme/theme = SubResource( 3 )
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 13.0
+margin/bottom = 14.0
+custom_icons/radio_checked = ExtResource( 14 )
+custom_icons/checked = ExtResource( 14 )
+custom_icons/radio_unchecked = ExtResource( 15 )
+custom_icons/unchecked = ExtResource( 15 )
+custom_styles/hover = SubResource( 4 )
+custom_styles/pressed = SubResource( 5 )
+custom_styles/focus = SubResource( 6 )
+custom_styles/disabled = SubResource( 7 )
+custom_styles/normal = SubResource( 8 )
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+flat = false
+align = 0
+
+[node name="lbl_green" type="TextureFrame" parent="hud/cntr_settings/check_pipe_texture/check_green"]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 16.0
+margin/top = 3.0
+margin/right = 33.0
+margin/bottom = 10.0
+texture = ExtResource( 19 )
+stretch_mode = 0
+
+[node name="btn_settings" type="TextureButton" parent="hud"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 10.0
+margin/top = 10.0
+margin/right = 23.0
+margin/bottom = 24.0
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+textures/normal = ExtResource( 20 )
+textures/pressed = ExtResource( 21 )
+params/resize_mode = 0
+params/stretch_mode = 0
+script/script = SubResource( 9 )
+
+

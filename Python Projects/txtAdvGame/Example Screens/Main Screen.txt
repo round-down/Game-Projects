@@ -1,0 +1,14 @@
+.GPS,{ H O M E  T O W N }
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+| H o m e				R i v a l ' s  H o u s e			R e s e a r c h  L a b			|
+|																																					|
+| K i d					T o w n  F o l k																					|
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+[Party][0-2]	< Charmander:lv.7 >< Squirtle:lv.10 >< Bulbasaur:lv.13 >
+		<><><>
+<Trainer: Parlite> <GP: 500> ;@Time.p ~ 7 hour(s);
+[Badges]<1><2><><><><><><>
+
+(Bag)[B](Map)[M]
+
+[0-2][B][H/RH/RL/K/TF]>

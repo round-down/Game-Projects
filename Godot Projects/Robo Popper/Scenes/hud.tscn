@@ -1,0 +1,271 @@
+[gd_scene load_steps=16 format=1]
+
+[ext_resource path="res://Images/shadedDark17.tex" type="Texture" id=1]
+[ext_resource path="res://Images/shadedDark19.tex" type="Texture" id=2]
+[ext_resource path="res://Images/shadedDark13.tex" type="Texture" id=3]
+[ext_resource path="res://Images/shadedDark15.tex" type="Texture" id=4]
+[ext_resource path="res://Themes/gold_buttons.tres" type="Theme" id=5]
+[ext_resource path="res://Font/m5x7.fnt" type="BitmapFont" id=6]
+[ext_resource path="res://Images/gold button(pressed).tex" type="Texture" id=7]
+[ext_resource path="res://Images/gold button.tex" type="Texture" id=8]
+
+[sub_resource type="GDScript" id=1]
+
+resource/name = "hud"
+script/source = "extends CanvasLayer
+
+func _input(event):
+	pass
+	
+func _ready():
+	set_process_input(true)
+	pass
+	
+func _on_mute_sounds_toggled( pressed ):
+	snd_player.play(\"little_click\")
+	if pressed == true:
+		global.mute_sounds_toggled = true
+		snd_player.set_default_volume(0.0)
+	else:
+		global.mute_sounds_toggled = false
+		snd_player.set_default_volume(0.316228)
+	pass
+
+
+func _on_mute_music_toggled( pressed ):
+	snd_player.play(\"little_click\")	
+	if pressed == true:
+		global.mute_music_toggled = true
+		music_player.set_paused(true)
+	else:
+		global.mute_music_toggled = false
+		music_player.set_paused(false)
+	pass
+"
+
+[sub_resource type="GDScript" id=2]
+
+resource/name = "mute music"
+script/source = "extends TextureButton
+
+func _ready():
+	if global.mute_music_toggled == false:
+		set_pressed(false)
+	else:
+		set_pressed(true)
+	pass"
+
+[sub_resource type="GDScript" id=3]
+
+resource/name = "mute sounds"
+script/source = "extends TextureButton
+
+func _ready():
+	if global.mute_sounds_toggled == false:
+		set_pressed(false)
+	else:
+		set_pressed(true)
+	pass
+
+func _pressed():
+	snd_player.play(\"little_click\")
+	pass"
+
+[sub_resource type="GDScript" id=4]
+
+resource/name = "clear all"
+script/source = "extends Button
+
+onready var mob_container = get_node(\"/root/main/mob container\")
+
+func _pressed():
+	global.ready_game = true
+	snd_player.play(\"little_click\")
+	var count = mob_container.get_child_count()
+	for i in range(count):
+		var t = mob_container.get_child(i)
+		t.queue_free()
+	pass"
+
+[sub_resource type="GDScript" id=5]
+
+resource/name = "menu button"
+script/source = "extends Button
+
+func _pressed():
+	snd_player.play(\"little_click\")
+	global.goto_scene(\"res://Scenes/main menu.tscn\")"
+
+[sub_resource type="StyleBoxTexture" id=6]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+texture = ExtResource( 7 )
+margin/left = 0.0
+margin/right = 0.0
+margin/top = 0.0
+margin/bottom = 0.0
+expand_margin/left = 0.0
+expand_margin/right = 0.0
+expand_margin/top = 0.0
+expand_margin/bottom = 0.0
+draw_center = true
+
+[sub_resource type="StyleBoxTexture" id=7]
+
+content_margin/left = -1.0
+content_margin/right = -1.0
+content_margin/top = -1.0
+content_margin/bottom = -1.0
+texture = ExtResource( 8 )
+margin/left = 0.0
+margin/right = 0.0
+margin/top = 0.0
+margin/bottom = 0.0
+expand_margin/left = 0.0
+expand_margin/right = 0.0
+expand_margin/top = 0.0
+expand_margin/bottom = 0.0
+draw_center = true
+
+[node name="hud" type="CanvasLayer"]
+
+layer = 4
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+script/script = SubResource( 1 )
+
+[node name="mute music" type="TextureButton" parent="."]
+
+visibility/opacity = 0.3
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 478.0
+margin/top = 2.0
+margin/right = 507.0
+margin/bottom = 31.0
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+textures/normal = ExtResource( 1 )
+textures/pressed = ExtResource( 2 )
+params/resize_mode = 0
+params/scale = Vector2( 0.6, 0.6 )
+params/stretch_mode = 0
+script/script = SubResource( 2 )
+
+[node name="mute sounds" type="TextureButton" parent="."]
+
+visibility/opacity = 0.3
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 515.0
+margin/top = 2.0
+margin/right = 544.0
+margin/bottom = 31.0
+toggle_mode = true
+enabled_focus_mode = 2
+shortcut = null
+textures/normal = ExtResource( 3 )
+textures/pressed = ExtResource( 4 )
+params/resize_mode = 0
+params/scale = Vector2( 0.6, 0.6 )
+params/stretch_mode = 0
+script/script = SubResource( 3 )
+
+[node name="clear all" type="Button" parent="."]
+
+visibility/opacity = 0.5
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = ExtResource( 5 )
+margin/left = 555.0
+margin/top = 5.0
+margin/right = 634.0
+margin/bottom = 25.0
+custom_fonts/font = ExtResource( 6 )
+toggle_mode = false
+enabled_focus_mode = 0
+shortcut = null
+text = "Clear All"
+flat = false
+script/script = SubResource( 4 )
+
+[node name="menu" type="Button" parent="."]
+
+visibility/opacity = 0.5
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+theme/theme = ExtResource( 5 )
+margin/left = 555.0
+margin/top = 334.0
+margin/right = 634.0
+margin/bottom = 354.0
+custom_fonts/font = ExtResource( 6 )
+toggle_mode = false
+enabled_focus_mode = 0
+shortcut = null
+text = "Menu"
+flat = false
+script/script = SubResource( 5 )
+
+[node name="score" type="Label" parent="."]
+
+anchor/right = 1
+rect/scale = Vector2( 2, 2 )
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 320.0
+margin/bottom = 14.0
+custom_fonts/font = ExtResource( 6 )
+text = "0"
+align = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="powerup" type="ProgressBar" parent="."]
+
+rect/scale = Vector2( 0.7, 0.7 )
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 0.0
+margin/top = 0.0
+margin/right = 214.0
+margin/bottom = 36.0
+custom_styles/fg = SubResource( 6 )
+custom_styles/bg = SubResource( 7 )
+custom_fonts/font = ExtResource( 6 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+range/min = 0.0
+range/max = 75.0
+range/step = 1.0
+range/page = 0.0
+range/value = 0.0
+range/exp_edit = false
+range/rounded = true
+percent/visible = true
+
+[connection signal="toggled" from="mute music" to="." method="_on_mute_music_toggled"]
+
+[connection signal="toggled" from="mute sounds" to="." method="_on_mute_sounds_toggled"]
+
+

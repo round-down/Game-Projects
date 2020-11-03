@@ -1,0 +1,72 @@
+[gd_scene load_steps=8 format=1]
+
+[ext_resource path="res://Sounds/Explosion8.smp" type="Sample" id=1]
+[ext_resource path="res://Sounds/Hit_Hurt.smp" type="Sample" id=2]
+[ext_resource path="res://Sounds/Explosion36.smp" type="Sample" id=3]
+[ext_resource path="res://Sounds/little_click.smp" type="Sample" id=4]
+[ext_resource path="res://Sounds/Explosion10.smp" type="Sample" id=5]
+
+[sub_resource type="SampleLibrary" id=1]
+
+resource/name = "sounds"
+samples/Hit_1 = {
+"db": -0.5,
+"pitch": 1.0,
+"priority": 1,
+"sample": ExtResource( 1 )
+}
+samples/Hit_2 = {
+"db": -0.5,
+"pitch": 1.0,
+"priority": 1,
+"sample": ExtResource( 2 )
+}
+samples/explode = {
+"db": 15.0,
+"pitch": 1.0,
+"priority": 0,
+"sample": ExtResource( 3 )
+}
+samples/little_click = {
+"db": 0.0,
+"pitch": 1.0,
+"priority": 0,
+"sample": ExtResource( 4 )
+}
+samples/shake_sound = {
+"db": 15.0,
+"pitch": 0.7,
+"priority": 0,
+"sample": ExtResource( 5 )
+}
+
+[sub_resource type="GDScript" id=2]
+
+resource/name = "snd_player"
+script/source = "extends SamplePlayer
+
+
+func _ready():
+	set_default_volume(0.17)
+	pass
+"
+
+[node name="snd_player" type="SamplePlayer"]
+
+config/polyphony = 50
+config/samples = SubResource( 1 )
+default/volume_db = -10.0
+default/pitch_scale = 1.0
+default/pan = 0.0
+default/depth = 0.0
+default/height = 0.0
+default/filter/type = 0
+default/filter/cutoff = 5000.0
+default/filter/resonance = 1.0
+default/filter/gain = 1.0
+default/reverb_room = 2
+default/reverb_send = 0.0
+default/chorus_send = 0.0
+script/script = SubResource( 2 )
+
+

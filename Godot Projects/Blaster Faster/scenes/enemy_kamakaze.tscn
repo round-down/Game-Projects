@@ -1,0 +1,88 @@
+[gd_scene load_steps=5 format=1]
+
+[ext_resource path="res://scenes/enemy.tscn" type="PackedScene" id=1]
+[ext_resource path="res://sprites/enemy_kamikaze.png" type="Texture" id=2]
+
+[sub_resource type="GDScript" id=1]
+
+resource/name = "enemy_kamakaze"
+script/source = "# script enemy_kamakaze
+
+extends Area2D
+
+export var armor = 2 setget set_armor
+
+# getting available nodes
+onready var sprite = get_node(\"sprite\")
+
+# preloading scenes
+onready var scn_explosion = preload(\"res://scenes/explosion.tscn\")
+
+# settings
+onready var screen_size = utils.view_size
+onready var extents = utils.get_extents(sprite, true)
+
+export var velocity = Vector2()
+
+signal explosion
+
+func _ready():
+	add_to_group(game.GROUP_ENEMIES)
+	connect(\"area_enter\", self, \"_on_area_enter\")
+	connect(\"explosion\", self, \"_create_explosion\")
+	set_process(true)
+	pass
+
+func _process(delta):
+	translate(velocity * delta)
+	
+	if get_pos().y >= screen_size.y + extents.y:
+		self.call_deferred(\"queue_free\")
+	pass
+
+func set_armor(new_value):
+	if is_queued_for_deletion(): return
+	
+	if new_value < armor: audio_player.play(\"hit_enemy\")
+	
+	armor = new_value
+	if armor <= 0:
+		utils.find_node(\"tex_score\").score += 5
+		self.call_deferred(\"emit_signal\", \"explosion\", get_global_pos())
+		self.call_deferred(\"queue_free\")
+	pass
+
+func _on_area_enter(other):
+	if other.is_in_group(game.GROUP_PLAYER):
+		other.armor -= 1
+		self.call_deferred(\"emit_signal\", \"explosion\", get_global_pos())
+		self.call_deferred(\"queue_free\")
+	pass
+
+func _create_explosion(pos):
+	var expl = scn_explosion.instance()
+	expl.set_pos(pos)
+	utils.main_node.add_child(expl)
+	yield(expl.get_node(\"anim\"), \"finished\")
+	pass
+"
+
+[sub_resource type="RectangleShape2D" id=2]
+
+custom_solver_bias = 0.0
+extents = Vector2( 12, 12 )
+
+[node name="enemy_kamakaze" instance=ExtResource( 1 )]
+
+script/script = SubResource( 1 )
+velocity = Vector2( 0, 350 )
+
+[node name="sprite" parent="."]
+
+texture = ExtResource( 2 )
+
+[node name="shape" parent="."]
+
+shape = SubResource( 2 )
+
+

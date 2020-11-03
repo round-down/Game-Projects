@@ -1,0 +1,56 @@
+[gd_scene load_steps=4 format=1]
+
+[ext_resource path="res://assets/controls/transparentDark22.tex" type="Texture" id=1]
+[ext_resource path="res://assets/controls/transparentDark23.tex" type="Texture" id=2]
+[ext_resource path="res://assets/controls/transparentDark24.tex" type="Texture" id=3]
+
+[node name="hud" type="CanvasLayer"]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="left" type="TouchScreenButton" parent="."]
+
+transform/pos = Vector2( 30, 450 )
+transform/scale = Vector2( 1.5, 1.5 )
+normal = ExtResource( 1 )
+pressed = null
+bitmask = null
+shape = null
+shape_centered = true
+shape_visible = true
+passby_press = false
+action = "ui_left"
+visibility_mode = 0
+
+[node name="right" type="TouchScreenButton" parent="."]
+
+transform/pos = Vector2( 200, 450 )
+transform/scale = Vector2( 1.5, 1.5 )
+normal = ExtResource( 2 )
+pressed = null
+bitmask = null
+shape = null
+shape_centered = true
+shape_visible = true
+passby_press = false
+action = "ui_right"
+visibility_mode = 0
+
+[node name="jump" type="TouchScreenButton" parent="."]
+
+transform/pos = Vector2( 870, 450 )
+transform/scale = Vector2( 1.5, 1.5 )
+normal = ExtResource( 3 )
+pressed = null
+bitmask = null
+shape = null
+shape_centered = true
+shape_visible = true
+passby_press = false
+action = "ui_select"
+visibility_mode = 0
+
+
